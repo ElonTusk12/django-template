@@ -1,0 +1,45 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Список задач на Django</title>
+    <link rel="stylesheet" href="{% static 'tasks/style.css' %}">
+  </head>
+  <body>
+    <main>
+      <h1>Список задач</h1>
+
+      <form method="post" action="{% url 'tasks:task_list' %}" class="add-task">
+        {% csrf_token %}
+        {{ form.title.label_tag }}
+        <div class="form-row">
+          {{ form.title }}
+          <button type="submit">Добавить</button>
+        </div>
+        {{ form.title.errors }}
+        {{ form.non_field_errors }}
+      </form>
+
+      <ul class="tasks">
+        {% for task in tasks %}
+          <li>
+            <span class="{% if task.done %}done{% endif %}">{{ task.title }}</span>
+            <form method="post" action="{% url 'tasks:task_toggle' task.id %}">
+              {% csrf_token %}
+              <button type="submit" class="secondary">
+                {% if task.done %}Вернуть в работу{% else %}Готово{% endif %}
+              </button>
+            </form>
+          </li>
+        {% empty %}
+          <li class="empty">Пока нет задач. Добавьте первую.</li>
+        {% endfor %}
+      </ul>
+
+      <p><a href="{% url 'tasks:task_api' %}">Задачи в JSON</a></p>
+      <p><a href="{% url 'admin:tasks_task_changelist' %}">Управление задачами в админке</a></p>
+    </main>
+  </body>
+</html>
