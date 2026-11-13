@@ -18,20 +18,37 @@
           {{ form.title }}
           <button type="submit">Добавить</button>
         </div>
+        <div class="filters" style="margin-bottom: 16px; display: flex; gap: 8px;">
+          <a href="{% url 'tasks:task_list' %}" class="button {% if not current_filter %}active{% endif %}">Все</a>
+          <a href="{% url 'tasks:task_list' %}?done=0" class="button {% if current_filter == '0' %}active{% endif %}">В работе</a>
+          <a href="{% url 'tasks:task_list' %}?done=1" class="button {% if current_filter == '1' %}active{% endif %}">Выполнены</a>
+        </div>
         {{ form.title.errors }}
         {{ form.non_field_errors }}
       </form>
+      
+      
 
       <ul class="tasks">
         {% for task in tasks %}
           <li>
-            <span class="{% if task.done %}done{% endif %}">{{ task.title }}</span>
-            <form method="post" action="{% url 'tasks:task_toggle' task.id %}">
-              {% csrf_token %}
-              <button type="submit" class="secondary">
-                {% if task.done %}Вернуть в работу{% else %}Готово{% endif %}
-              </button>
-            </form>
+            <span class="{% if task.done %}done{% endif %}">
+              <a href="{% url 'tasks:task_detail' task.id %}">{{ task.title }}</a>
+            </span>
+            <div class="task-actions" style="display: flex; gap: 8px; align-items: center;">
+              <form method="post" action="{% url 'tasks:task_toggle' task.id %}">
+                {% csrf_token %}
+                <button type="submit" class="secondary">
+                  {% if task.done %}Вернуть в работу{% else %}Готово{% endif %}
+                </button>
+              </form>
+              <form method="post" action="{% url 'tasks:task_delete' task.id %}">
+                {% csrf_token %}
+                <button type="submit" class="secondary">
+                  Удалить
+                </button>
+              </form>
+            </div>
           </li>
         {% empty %}
           <li class="empty">Пока нет задач. Добавьте первую.</li>

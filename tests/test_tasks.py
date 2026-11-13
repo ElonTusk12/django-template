@@ -112,3 +112,40 @@ def test_admin_displays_tasks(admin_client):
     response = admin_client.get(reverse("admin:tasks_task_changelist"))
     assert response.status_code == 200
     assert "Задача в админке" in response.content.decode()
+
+
+def test_task_detail_renders_task(client):
+    task = Task.objects.create(title="Бурмалда", done=True)
+    response = client.get(reverse("tasks:task_detail", args=[task.pk]))
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert "Бурмалда" in html
+    assert "Готово" in html
+
+
+def test_task_detail_missing_404(client):
+    response = client.get(reverse("tasks:task_detail", args=[67]))
+    assert response.status_code == 404
+
+
+def test_task_deletion(client):
+    task = Task.objects.create(title="kek")
+    url = reverse("tasks:task_delete", args=[task.pk])
+    response = client.post(url)
+    assert response.status_code == 302
+    assert response.url == reverse("tasks:task_list")
+    assert not Task.objects.filter(pk=task.pk).exists()
+
+
+def test_task_deletion_missing_404(client):
+    response = client.post(reverse("tasks:task_delete", args=[67]))
+    assert response.status_code == 404
+
+
+def test_get_cannot_delete_task(client):
+    task = Task.objects.create(title="lol")
+    url = reverse("tasks:task_delete", args=[task.pk])
+    response = client.get(url)
+    assert response.status_code == 405
+    assert Task.objects.filter(pk=task.pk).exists()
+

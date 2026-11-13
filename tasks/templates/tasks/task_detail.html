@@ -1,0 +1,33 @@
+{% load static %}
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ task.title }} — Задача</title>
+    <link rel="stylesheet" href="{% static 'tasks/style.css' %}">
+  </head>
+  <body>
+    <main>
+      <h1>{{ task.title }}</h1>
+      <p>Состояние: {% if task.done %}Готово{% else %}В работе{% endif %}</p>
+
+      <div style="display: flex; gap: 12px; align-items: center; margin-top: 24px;">
+        <form method="post" action="{% url 'tasks:task_toggle' task.id %}">
+          {% csrf_token %}
+          <button type="submit" class="secondary">
+            {% if task.done %}Вернуть в работу{% else %}Готово{% endif %}
+          </button>
+        </form>
+
+        <form method="post" action="{% url 'tasks:task_delete' task.id %}">
+          {% csrf_token %}
+          <button type="submit" style="background: #a32121; border-color: #a32121;">Удалить</button>
+        </form>
+      </div>
+
+      <p style="margin-top: 32px;"><a href="{% url 'tasks:task_list' %}">← К списку задач</a></p>
+    </main>
+  </body>
+</html>
